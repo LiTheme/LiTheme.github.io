@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hunter's Association - Private Network</title>
+    <style>
+        :root {
+            --hunter-red: #8B0000;
+            --parchment: #F5E6CA;
+            --old-gold: #D4AF37;
+        }
+
+        body {
+            background: url('https://img.freepik.com/free-photo/old-brown-paper-texture-background_1373-431.jpg') center/cover;
+            font-family: 'MedievalSharp', cursive;
+            color: #3A2F28;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px double var(--hunter-red);
+            margin-bottom: 30px;
+        }
+
+        .hunter-logo {
+            width: 150px;
+            filter: drop-shadow(0 0 5px var(--old-gold));
+        }
+
+        .request-board {
+            background: rgba(245, 230, 202, 0.9);
+            border: 3px groove var(--old-gold);
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .admin-panel {
+            background: rgba(139, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+        }
+
+        .chat-room {
+            border: 2px solid var(--hunter-red);
+            height: 400px;
+            overflow-y: scroll;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .login-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--parchment);
+            padding: 30px;
+            border: 3px solid var(--hunter-red);
+            z-index: 1000;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <h2>Hunter Association Gateway</h2>
+        <p>Enter Association Password:</p>
+        <input type="password" id="passwordInput">
+        <button onclick="checkPassword()">Enter</button>
+        <p id="loginError" style="color: var(--hunter-red); display: none;">Invalid credentials!</p>
+    </div>
+
+    <!-- Main Content (Hidden until login) -->
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="header">
+            <img src="https://static.wikia.nocookie.net/hunterxhunter/images/a/a6/Hunter_Association_Logo.png" 
+                 alt="Hunter Association Logo" class="hunter-logo">
+            <h1>Hunter Association Request Network</h1>
+            <p>ℹ️ All requests are monitored by AI - Illegal content will result in immediate license revocation</p>
+        </div>
+
+        <!-- Admin Panel (Visible only to admin) -->
+        <div class="admin-panel" id="adminPanel" style="display: none;">
+            <h3>Association Control Panel</h3>
+            <button onclick="toggleEditMode()">Edit Mode</button>
+            <button onclick="clearChatHistory()">Purge Chat</button>
+        </div>
+
+        <!-- Request Board -->
+        <div class="request-board">
+            <h2>✦ Current Requests ✦</h2>
+            <div id="requestsList">
+                <!-- Requests will be added dynamically -->
+            </div>
+            <h3>Post New Request:</h3>
+            <textarea id="newRequest" rows="4" style="width: 100%"></textarea>
+            <button onclick="postRequest()">Submit Request (₪)</button>
+        </div>
+
+        <!-- Chat Rooms -->
+        <div class="chat-room">
+            <div id="chatMessages"></div>
+            <input type="text" id="chatInput" style="width: 80%">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Password System
+        const MEMBER_PASSWORD = "Accompany On";
+        const ADMIN_PASSWORD = "0712012707";
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            if(input === MEMBER_PASSWORD || input === ADMIN_PASSWORD) {
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                if(input === ADMIN_PASSWORD) {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    localStorage.setItem('isAdmin', 'true');
+                }
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        // Admin Functions
+        let editMode = false;
+        
+        function toggleEditMode() {
+            editMode = !editMode;
+            document.body.contentEditable = editMode;
+            alert(`Edit Mode ${editMode ? 'ACTIVATED' : 'DEACTIVATED'}`);
+        }
+
+        function clearChatHistory() {
+            if(confirm("Purge all chat history?")) {
+                localStorage.removeItem('chatMessages');
+                document.getElementById('chatMessages').innerHTML = '';
+            }
+        }
+
+        // Chat System
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const chatDiv = document.getElementById('chatMessages');
+            chatDiv.innerHTML += `<div class="message">${input.value}</div>`;
+            input.value = '';
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        // Request System
+        function postRequest() {
+            const requestText = document.getElementById('newRequest').value;
+            const requestsList = document.getElementById('requestsList');
+            requestsList.innerHTML += `
+                <div class="request">
+                    <h4>New Request ★☆☆☆</h4>
+                    <p>${requestText}</p>
+                    <small>Status: Pending | Reward: Unspecified</small>
+                </div>
+            `;
+            document.getElementById('newRequest').value = '';
+        }
+
+        // Initial Check for Admin
+        if(localStorage.getItem('isAdmin') === 'true') {
+            document.getElementById('adminPanel').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
